@@ -1,3 +1,8 @@
+
+<p align="center">
+  <img src="pics/BetterTaskBarLogo.png" alt="BetterTaskbar Logo" width="300">
+</p>
+
 # BetterTaskbar
 
 A custom taskbar controller for Windows written in C++20. It replaces the default, often clunky auto-hide behavior with smooth, customizable animations and better focus management.
