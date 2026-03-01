@@ -3,4 +3,4 @@ project(taskbar)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(taskbar WIN32 main.cpp)
+add_executable(taskbar WIN32 main.cpp resource.rc)

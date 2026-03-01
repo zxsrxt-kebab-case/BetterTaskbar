@@ -175,8 +175,15 @@ int APIENTRY WinMain(HINSTANCE h_inst, HINSTANCE, LPSTR, int)
     RegisterClass(&wc);
     const auto h_wnd = CreateWindow(wc.lpszClassName, nullptr, 0, 0, 0, 0, 0, nullptr, nullptr, h_inst, nullptr);
 
-    NOTIFYICONDATA nid = { sizeof(nid), h_wnd, 1, NIF_ICON | NIF_MESSAGE | NIF_TIP, WM_USER + 1, LoadIcon(nullptr, IDI_APPLICATION) };
-    strcpy_s(nid.szTip, "BetterTaskBar");
+    NOTIFYICONDATA nid = { sizeof(nid) };
+    nid.hWnd = h_wnd;
+    nid.uID = 1;
+    nid.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+    nid.uCallbackMessage = WM_USER + 1;
+
+    nid.hIcon = LoadIcon(GetModuleHandle(nullptr), MAKEINTRESOURCE(101));
+
+    strcpy_s(nid.szTip, "BetterTaskbar");
     Shell_NotifyIcon(NIM_ADD, &nid);
 
     MSG msg;
