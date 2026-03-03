@@ -90,9 +90,9 @@ float ease_out_bounce(float t)
 //main func wrapper
 void move_taskbar(const int y)
 {
-    const auto w = GetSystemMetrics(SM_CXSCREEN);
-    SetWindowPos(g_sys.h_taskbar, HWND_TOPMOST, 0, y, w, g_sys.taskbar_h,
-                 SWP_NOACTIVATE | SWP_NOSENDCHANGING | SWP_SHOWWINDOW | SWP_NOOWNERZORDER);
+    // fix
+    SetWindowPos(g_sys.h_taskbar, HWND_TOPMOST, 0, y, 0, 0,
+                 SWP_NOACTIVATE | SWP_NOSENDCHANGING | SWP_SHOWWINDOW | SWP_NOOWNERZORDER | SWP_NOSIZE);
 }
 
 //helper for check is win start menu opened
@@ -161,12 +161,8 @@ int APIENTRY WinMain(HINSTANCE h_inst, HINSTANCE, LPSTR, int)
     g_sys.h_taskbar = FindWindowA("Shell_TrayWnd", nullptr);
     if (!g_sys.h_taskbar) return 1;
 
-    g_sys.screen_height = GetSystemMetrics(SM_CYSCREEN);
-    const auto exp_y = g_sys.screen_height - g_sys.taskbar_h;
-    const auto hid_y = g_sys.screen_height - 1;
-
-    g_sys.target_y = hid_y;
-    g_sys.current_y = static_cast<float>(hid_y);
+    g_sys.target_y = GetSystemMetrics(SM_CYSCREEN) - 1;
+    g_sys.current_y = static_cast<float>(g_sys.target_y);
 
     WNDCLASS wc = {0};
     wc.lpfnWndProc = window_proc;
@@ -201,7 +197,13 @@ int APIENTRY WinMain(HINSTANCE h_inst, HINSTANCE, LPSTR, int)
         RECT real_rect;
         GetWindowRect(g_sys.h_taskbar, &real_rect);
 
-        const int wanted_y = (pt.y >= g_sys.screen_height - g_sys.taskbar_h ||
+        g_sys.taskbar_h = real_rect.bottom - real_rect.top;
+        g_sys.screen_height = GetSystemMetrics(SM_CYSCREEN);
+
+        const int exp_y = g_sys.screen_height - g_sys.taskbar_h;
+        const int hid_y = g_sys.screen_height - 1;
+
+        const int wanted_y = (pt.y >= exp_y ||
                               GetAsyncKeyState(VK_LWIN) & 0x8000 ||
                               GetAsyncKeyState(VK_RWIN) & 0x8000 ||
                               is_start_focused()) ? exp_y : hid_y;
@@ -258,6 +260,6 @@ int APIENTRY WinMain(HINSTANCE h_inst, HINSTANCE, LPSTR, int)
     }
 
     Shell_NotifyIcon(NIM_DELETE, &nid);
-    move_taskbar(exp_y);
+    move_taskbar(GetSystemMetrics(SM_CYSCREEN) - g_sys.taskbar_h);
     return 0;
 }
