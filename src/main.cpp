@@ -201,12 +201,25 @@ int APIENTRY WinMain(HINSTANCE h_inst, HINSTANCE, LPSTR, int)
         g_sys.screen_height = GetSystemMetrics(SM_CYSCREEN);
 
         const int exp_y = g_sys.screen_height - g_sys.taskbar_h;
-        const int hid_y = g_sys.screen_height - 1;
+        const int hid_y = g_sys.screen_height - 2;
 
-        const int wanted_y = (pt.y >= exp_y ||
-                              GetAsyncKeyState(VK_LWIN) & 0x8000 ||
-                              GetAsyncKeyState(VK_RWIN) & 0x8000 ||
-                              is_start_focused()) ? exp_y : hid_y;
+        bool is_sys_active = (GetAsyncKeyState(VK_LWIN) & 0x8000) ||
+                             (GetAsyncKeyState(VK_RWIN) & 0x8000) ||
+                             is_start_focused();
+
+        bool is_expanded = (g_sys.target_y == exp_y);
+
+        bool should_expand = false;
+
+        if (is_expanded)
+        {
+            should_expand = (pt.y >= exp_y) || is_sys_active;
+        } else
+        {
+            should_expand = (pt.y >= hid_y) || is_sys_active;
+        }
+
+        const int wanted_y = should_expand ? exp_y : hid_y;
 
         if (wanted_y != g_sys.target_y)
         {
